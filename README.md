@@ -3,7 +3,7 @@
 Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired from projects [Codehaus Classworlds][classworlds] and
 [Plexus Classworlds][plexus].
 
-# Maven Dependency
+## Maven Dependency
 
     <dependency>
       <groupId>org.codehaus.sonar-plugins</groupId>
@@ -11,11 +11,11 @@ Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired 
       <version>${classloader.version}</version>
     </dependency>
 
-# Usage
+## Usage
 
 TBD
 
-# License
+## License
 
     Copyright (C) 2015 SonarSource
     
