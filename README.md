@@ -3,6 +3,8 @@
 Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired from projects [Codehaus Classworlds][classworlds] and
 [Plexus Classworlds][plexus].
 
+This library is available under GNU LGPLv3.
+
 ## Maven Dependency
 
     <dependency>
@@ -13,7 +15,54 @@ Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired 
 
 ## Usage
 
-TBD
+#### Create classloader
+
+Create a classloader based on system classloader.
+
+```java
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("the-cl")
+  .addURL("the-cl", jarFile)
+  .addURL("the-cl", directory)
+  .build();
+
+// this classloader can load only JRE and the resources contained in jarFile and directory. 
+ClassLoader c = classloaders.get("the-cl");
+```
+
+It's also possible to create a classloader based on another one:
+
+```java
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("the-cl", otherClassloader)
+  .addURL("the-cl", jarFile)
+  .build();
+
+// this classloader can load the resources of JRE, jarFile and otherClassloader. 
+ClassLoader cl1 = classloaders.get("cl1");
+```
+
+#### Hierarchy of classloaders
+
+```java
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("the-parent")
+  .addURL("the-parent", parentJar)
+  
+  .newClassloader("the-child")
+  .addURL("the-child", childJar)
+  .setParent("the-child", "the-parent", new Mask())
+  
+  // can be parent-first or self-first ordering strategy. Default is parent-first.
+  .setLoadingOrder("the-child", LoadingOrder.SELF_FIRST)
+  
+  .build();
+ClassLoader parent = classloaders.get("the-parent");
+ClassLoader child = classloaders.get("the-child");
+```
 
 ## License
 
