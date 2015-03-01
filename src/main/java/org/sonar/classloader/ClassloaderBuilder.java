@@ -25,10 +25,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @since 0.1
+ */
 public class ClassloaderBuilder {
 
   public static enum LoadingOrder {
+    /**
+     * Order: siblings, then parent, then self
+     */
     PARENT_FIRST(ParentFirstStrategy.INSTANCE),
+
+    /**
+     * Order: siblings, then self, then parent
+     */
     SELF_FIRST(SelfFirstStrategy.INSTANCE);
 
     private final Strategy strategy;
@@ -45,7 +55,7 @@ public class ClassloaderBuilder {
   private static class NewRealm {
     private final ClassRealm realm;
 
-    private Mask exportMask;
+    private Mask exportMask = new Mask();
 
     // key of the optional parent classloader
     private String parentKey;
@@ -126,7 +136,7 @@ public class ClassloaderBuilder {
   public Map<String, ClassLoader> build() {
     Map<String, ClassLoader> result = new HashMap<>();
 
-    // all the classloaders are registered and created. Associations can be resolved.
+    // all the classloaders are created. Associations can now be resolved.
     for (Map.Entry<String, NewRealm> entry : newRealmsByKey.entrySet()) {
       NewRealm newRealm = entry.getValue();
       if (newRealm.parentKey != null) {
@@ -148,7 +158,7 @@ public class ClassloaderBuilder {
 
   private void mergeWithExportMask(Mask mask, String exportKey) {
     NewRealm newRealm = newRealmsByKey.get(exportKey);
-    if (newRealm != null && newRealm.exportMask != null) {
+    if (newRealm != null) {
       mask.merge(newRealm.exportMask);
     }
   }
@@ -161,10 +171,12 @@ public class ClassloaderBuilder {
     return newRealm;
   }
 
+  /**
+   * JRE system classloader. In Oracle JVM:
+   * - ClassLoader.getSystemClassLoader() is sun.misc.Launcher$AppClassLoader. It contains app classpath.
+   * - ClassLoader.getSystemClassLoader().getParent() is sun.misc.Launcher$ExtClassLoader. It is the JRE core classloader.
+   */
   private ClassLoader getSystemClassloader() {
-    // on Oracle JVM :
-    // - ClassLoader.getSystemClassLoader() is sun.misc.Launcher$AppClassLoader. It contains app classpath.
-    // - ClassLoader.getSystemClassLoader().getParent() is sun.misc.Launcher$ExtClassLoader. It contains core JVM
     ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
     ClassLoader systemParent = systemClassLoader.getParent();
     if (systemParent != null) {
