@@ -22,10 +22,20 @@ package org.sonar.classloader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A mask restricts access of a classloader to resources through inclusion and exclusion patterns.
+ * By default all resources/classes are visible.
+ * <p/>
+ * Format of inclusion/exclusion patterns is the file path separated by slashes, for example
+ * "org/foo/Bar.class" or "org/foo/config.xml". Wildcard patterns are not supported. Directories must end with
+ * slash, for example "org/foo/" for excluding package org.foo and its sub-packages. Add the
+ * exclusion "/" to exclude everything.
+ *
+ * @since 0.1
+ */
 public class Mask {
 
-  // Wildcard patterns are not supported.
-  // for example org/foo/ or org/foo/Bar.class
+  private static final String ROOT = "/";
   private final List<String> inclusions = new ArrayList<>();
   private final List<String> exclusions = new ArrayList<>();
 
@@ -59,7 +69,7 @@ public class Mask {
     if (!inclusions.isEmpty()) {
       ok = false;
       for (String include : inclusions) {
-        if ((include.endsWith("/") && name.startsWith(include)) || include.equals(name)) {
+        if (include.equals(ROOT) || (include.endsWith("/") && name.startsWith(include)) || include.equals(name)) {
           ok = true;
           break;
         }
@@ -67,7 +77,7 @@ public class Mask {
     }
     if (ok) {
       for (String exclude : exclusions) {
-        if ((exclude.endsWith("/") && name.startsWith(exclude)) || exclude.equals(name)) {
+        if (exclude.equals(ROOT) || (exclude.endsWith("/") && name.startsWith(exclude)) || exclude.equals(name)) {
           ok = false;
           break;
         }

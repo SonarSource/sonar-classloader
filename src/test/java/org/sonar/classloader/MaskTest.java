@@ -99,6 +99,24 @@ public class MaskTest {
   }
 
   @Test
+  public void exclude_everything() throws Exception {
+    sut.addExclusion("/");
+    assertThat(sut.acceptClass("org.sonar.Foo")).isFalse();
+    assertThat(sut.acceptClass("Foo")).isFalse();
+    assertThat(sut.acceptResource("config.xml")).isFalse();
+    assertThat(sut.acceptResource("org/config.xml")).isFalse();
+  }
+
+  @Test
+  public void include_everything() throws Exception {
+    sut.addInclusion("/");
+    assertThat(sut.acceptClass("org.sonar.Foo")).isTrue();
+    assertThat(sut.acceptClass("Foo")).isTrue();
+    assertThat(sut.acceptResource("config.xml")).isTrue();
+    assertThat(sut.acceptResource("org/config.xml")).isTrue();
+  }
+
+  @Test
   public void merge_with_none() throws Exception {
     sut.addInclusion("org/foo/");
     sut.addExclusion("org/bar/");

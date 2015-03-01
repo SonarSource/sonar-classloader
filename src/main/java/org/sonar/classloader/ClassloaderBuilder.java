@@ -78,7 +78,10 @@ public class ClassloaderBuilder {
     if (newRealmsByKey.containsKey(key)) {
       throw new IllegalStateException(String.format("The classloader '%s' already exists. Can not create it twice.", key));
     }
-    newRealmsByKey.put(key, new NewRealm(new ClassRealm(key, baseClassloader)));
+    ClassRealm realm = new ClassRealm(key, baseClassloader);
+    // default strategy is parent-first
+    realm.setStrategy(LoadingOrder.PARENT_FIRST.strategy);
+    newRealmsByKey.put(key, new NewRealm(realm));
     return this;
   }
 

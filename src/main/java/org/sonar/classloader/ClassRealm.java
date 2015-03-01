@@ -38,7 +38,7 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
   private Mask mask = new Mask();
   private ClassloaderRef parentRef = NullClassloaderRef.INSTANCE;
   private List<ClassloaderRef> siblingRefs = new ArrayList<>();
-  private Strategy strategy = ParentFirstStrategy.INSTANCE;
+  private Strategy strategy;
 
   ClassRealm(String key, ClassLoader baseClassloader) {
     super(new URL[0], baseClassloader);
@@ -93,12 +93,10 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
     throw new ClassNotFoundException(String.format("Class %s is not accepted in classloader %s", name, this));
   }
 
+
   @Override
   protected Class<?> findClass(String name) throws ClassNotFoundException {
-    /*
-     * NOTE: This gets only called from ClassLoader.loadClass(Class, boolean) while we try to check for bootstrap
-     * stuff. Don't scan our class path yet, loadClassFromSelf() will do this later when called by the strategy.
-     */
+    // not supposed to be used. Replaced by loadClassFromSelf(String)
     throw new ClassNotFoundException(name);
   }
 
