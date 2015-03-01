@@ -1,7 +1,6 @@
 # Toolbox for Java Classloaders
 
-Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired from projects [Codehaus Classworlds][classworlds] and
-[Plexus Classworlds][plexus].
+Sonar Classloader is a toolbox for creating Java 7+ classloaders. It's inspired from projects [Codehaus Classworlds][classworlds] and [Plexus Classworlds][plexus]. It is not coupled with SonarQube and can be used without any third-party dependencies.
 
 This library is available under GNU LGPLv3.
 
