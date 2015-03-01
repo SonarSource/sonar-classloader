@@ -85,7 +85,49 @@ Map<String, ClassLoader> classloaders = builder
 
 #### Masks
 
-TBD
+A mask restricts access of a classloader to some resources and classes. By default there are no restrictions.
+ 
+A mask is based on inclusion and exclusion patterns. Format is file path separated by slashes, for example "org/foo/Bar.class" or "org/foo/config.xml". Wildcard patterns are not supported. Directories must end with slash, for example "org/foo/" for excluding package org.foo and all its sub-packages.
+
+Masks can be defined on parent-child and sibling relations.
+
+```java
+// all the resources/classes of classloader 'b' are visible from 'a', except org/foo/** resources.
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("a")
+  .newClassloader("b")
+  .addSibling("a", "b", new Mask().addExclusion("org/foo/"))
+  .build();
+```
+
+When the same patterns are defined multiple times for each usage of a classloader, then the patterns can be declared once on the targetted classloader.
+
+```java
+// classloader 'a' exports only the resources/classes "org/a/api/" but not other internal classes. 
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("a")
+  .setExportMask(new Mask().addInclusion("org/a/api/"))
+  .newClassloader("b")
+  .newClassloader("c")
+  .addSibling("b", "a", new Mask())
+  .addSibling("c", "a", new Mask())
+  .build();
+```
+
+This is equivalent of:
+
+```java
+ClassloaderBuilder builder = new ClassloaderBuilder();
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("a")
+  .newClassloader("b")
+  .newClassloader("c")
+  .addSibling("b", "a", new Mask().addInclusion("org/a/api/"))
+  .addSibling("c", "a", new Mask().addInclusion("org/a/api/"))
+  .build();
+```
 
 ## License
 
