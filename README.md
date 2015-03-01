@@ -15,7 +15,7 @@ This library is available under GNU LGPLv3.
 
 ## Usage
 
-#### Create classloader
+#### Build classloader
 
 Create a classloader based on system classloader.
 
@@ -56,12 +56,15 @@ Map<String, ClassLoader> classloaders = builder
   .addURL("the-child", childJar)
   .setParent("the-child", "the-parent", new Mask())
   
+  .newClassloader("the-grand-child")
+  .setParent("the-grand-child", "the-child", new Mask())
   // can be parent-first or self-first ordering strategy. Default is parent-first.
-  .setLoadingOrder("the-child", LoadingOrder.SELF_FIRST)
+  .setLoadingOrder("the-grand-child", LoadingOrder.SELF_FIRST)
   
   .build();
 ClassLoader parent = classloaders.get("the-parent");
 ClassLoader child = classloaders.get("the-child");
+ClassLoader grandChild = classloaders.get("the-grand-child");
 ```
 
 ## License
