@@ -67,6 +67,26 @@ ClassLoader child = classloaders.get("the-child");
 ClassLoader grandChild = classloaders.get("the-grand-child");
 ```
 
+Importing classes and resources from sibling classloaders allows to convert the standard tree of classloaders to a graph a classloaders.
+
+```java
+ClassloaderBuilder builder = new ClassloaderBuilder();
+// build 4 classloaders. "the-child" searches for resources from sibling1, sibling2, the-parent then itself.
+Map<String, ClassLoader> classloaders = builder
+  .newClassloader("the-parent")
+  .newClassloader("sibling1")
+  .newClassloader("sibling2")
+  .newClassloader("the-child")
+  .setParent("the-child", "the-parent", new Mask())
+  .addSibling("the-child", "sibling1", new Mask())
+  .addSibling("the-child", "sibling2", new Mask())
+  .build();
+```
+
+#### Masks
+
+TBD
+
 ## License
 
     Copyright (C) 2015 SonarSource
