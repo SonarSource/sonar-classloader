@@ -60,7 +60,8 @@ class DefaultClassloaderRef implements ClassloaderRef {
         while (resources.hasMoreElements()) {
           appendTo.add(resources.nextElement());
         }
-      } catch (IOException ignored) {
+      } catch (IOException e) {
+        throw new IllegalStateException(String.format("Fail to load resources named '%s'", name), e);
       }
     }
   }
