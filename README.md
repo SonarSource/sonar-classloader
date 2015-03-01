@@ -129,6 +129,11 @@ Map<String, ClassLoader> classloaders = builder
   .build();
 ```
 
+## Changelog
+
+Version 0.1 not released yet. 
+Ability to print the details of classloaders is not implemented yet.
+
 ## License
 
     Copyright (C) 2015 SonarSource
