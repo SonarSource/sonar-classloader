@@ -585,6 +585,49 @@ public class ClassloaderBuilderTest {
     assertThat(childResources).hasSize(2);
     assertThat(IOUtils.toString(childResources.get(0))).startsWith("version 1 of a.txt");
     assertThat(IOUtils.toString(childResources.get(1))).startsWith("version 2 of a.txt");
+  }
+
+  @Test
+  public void resource_not_found_in_parent_first_strategy() throws Exception {
+    Map<String, ClassLoader> newClassloaders = sut
+      .newClassloader("the-parent")
+      .addURL("the-parent", new File("tester/a.jar").toURL())
+
+      .newClassloader("the-child")
+      .addURL("the-child", new File("tester/a_v2.jar").toURL())
+      .setParent("the-child", "the-parent", new Mask())
+      .build();
+
+    ClassLoader parent = newClassloaders.get("the-child");
+    assertThat(parent.getResource("missing")).isNull();
+    try {
+      parent.loadClass("missing");
+      fail();
+    } catch (ClassNotFoundException e) {
+      // ok
+    }
+  }
+
+  @Test
+  public void resource_not_found_in_self_first_strategy() throws Exception {
+    Map<String, ClassLoader> newClassloaders = sut
+      .newClassloader("the-parent")
+      .addURL("the-parent", new File("tester/a.jar").toURL())
+
+      .newClassloader("the-child")
+      .addURL("the-child", new File("tester/a_v2.jar").toURL())
+      .setParent("the-child", "the-parent", new Mask())
+      .setLoadingOrder("the-child", ClassloaderBuilder.LoadingOrder.SELF_FIRST)
+      .build();
+
+    ClassLoader parent = newClassloaders.get("the-child");
+    assertThat(parent.getResource("missing")).isNull();
+    try {
+      parent.loadClass("missing");
+      fail();
+    } catch (ClassNotFoundException e) {
+      // ok
+    }
 
   }
 
