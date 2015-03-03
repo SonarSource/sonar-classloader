@@ -20,7 +20,7 @@
 package org.sonar.classloader;
 
 import java.net.URL;
-import java.util.Set;
+import java.util.Collection;
 
 class ParentFirstStrategy implements Strategy {
   static final Strategy INSTANCE = new ParentFirstStrategy();
@@ -56,7 +56,7 @@ class ParentFirstStrategy implements Strategy {
   }
 
   @Override
-  public void getResources(StrategyContext context, String name, Set<URL> appendTo) {
+  public void getResources(StrategyContext context, String name, Collection<URL> appendTo) {
     context.loadResourcesFromSiblings(name, appendTo);
     context.loadResourcesFromParent(name, appendTo);
     context.loadResourcesFromSelf(name, appendTo);

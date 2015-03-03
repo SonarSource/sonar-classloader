@@ -39,6 +39,7 @@ class DefaultClassloaderRef implements ClassloaderRef {
       try {
         return classloader.loadClass(classname);
       } catch (ClassNotFoundException ignored) {
+        // excepted behavior. Return null if class does not exist in this classloader
       }
     }
     return null;

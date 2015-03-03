@@ -20,7 +20,6 @@
 package org.sonar.classloader;
 
 import javax.annotation.CheckForNull;
-
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 class ClassRealm extends URLClassLoader implements StrategyContext {
 
@@ -111,7 +108,9 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
 
   @Override
   public Enumeration<URL> getResources(String name) throws IOException {
-    Set<URL> resources = new LinkedHashSet<>();
+    // Important note: do not use java.util.Set as equals and hashCode methods of
+    // java.net.URL perform domain name resolution. This can result in a big performance hit.
+    List<URL> resources = new ArrayList<>();
     if (mask.acceptResource(name)) {
       strategy.getResources(this, name, resources);
     }
@@ -125,6 +124,8 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
       try {
         return super.findClass(name);
       } catch (ClassNotFoundException ignored) {
+        // return null when class is not found, so that loading strategy
+        // can try parent or sibling classloaders.
       }
     }
     return clazz;
@@ -171,8 +172,8 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
   public void loadResourcesFromSelf(String name, Collection<URL> appendTo) {
     try {
       appendTo.addAll(Collections.list(super.findResources(name)));
-    } catch (IOException ignored) {
-
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Fail to load resources named '%s' from classloader %s", name, toString()), e);
     }
   }
 

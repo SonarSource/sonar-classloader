@@ -20,7 +20,7 @@
 package org.sonar.classloader;
 
 import java.net.URL;
-import java.util.Set;
+import java.util.Collection;
 
 class SelfFirstStrategy implements Strategy {
 
@@ -58,7 +58,7 @@ class SelfFirstStrategy implements Strategy {
   }
 
   @Override
-  public void getResources(StrategyContext context, String name, Set<URL> appendTo) {
+  public void getResources(StrategyContext context, String name, Collection<URL> appendTo) {
     context.loadResourcesFromSiblings(name, appendTo);
     context.loadResourcesFromSelf(name, appendTo);
     context.loadResourcesFromParent(name, appendTo);

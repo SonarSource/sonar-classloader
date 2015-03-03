@@ -35,7 +35,8 @@ import java.util.List;
  */
 public class Mask {
 
-  private static final String ROOT = "/";
+  private static final String ROOT = "" +
+    "/";
   private final List<String> inclusions = new ArrayList<>();
   private final List<String> exclusions = new ArrayList<>();
 
@@ -69,7 +70,7 @@ public class Mask {
     if (!inclusions.isEmpty()) {
       ok = false;
       for (String include : inclusions) {
-        if (include.equals(ROOT) || (include.endsWith("/") && name.startsWith(include)) || include.equals(name)) {
+        if (matchPattern(name, include)) {
           ok = true;
           break;
         }
@@ -77,13 +78,17 @@ public class Mask {
     }
     if (ok) {
       for (String exclude : exclusions) {
-        if (exclude.equals(ROOT) || (exclude.endsWith("/") && name.startsWith(exclude)) || exclude.equals(name)) {
+        if (matchPattern(name, exclude)) {
           ok = false;
           break;
         }
       }
     }
     return ok;
+  }
+
+  private boolean matchPattern(String name, String pattern) {
+    return pattern.equals(ROOT) || (pattern.endsWith("/") && name.startsWith(pattern)) || pattern.equals(name);
   }
 
   void merge(Mask with) {

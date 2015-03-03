@@ -22,7 +22,7 @@ package org.sonar.classloader;
 import javax.annotation.CheckForNull;
 
 import java.net.URL;
-import java.util.Set;
+import java.util.Collection;
 
 public interface Strategy {
 
@@ -31,6 +31,6 @@ public interface Strategy {
   @CheckForNull
   URL getResource(StrategyContext context, String name);
 
-  void getResources(StrategyContext context, String name, Set<URL> urls);
+  void getResources(StrategyContext context, String name, Collection<URL> urls);
 
 }

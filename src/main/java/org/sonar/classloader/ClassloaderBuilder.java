@@ -20,6 +20,8 @@
 package org.sonar.classloader;
 
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,11 +76,16 @@ public class ClassloaderBuilder {
     return newClassloader(key, getSystemClassloader());
   }
 
-  public ClassloaderBuilder newClassloader(String key, ClassLoader baseClassloader) {
+  public ClassloaderBuilder newClassloader(final String key, final ClassLoader baseClassloader) {
     if (newRealmsByKey.containsKey(key)) {
       throw new IllegalStateException(String.format("The classloader '%s' already exists. Can not create it twice.", key));
     }
-    ClassRealm realm = new ClassRealm(key, baseClassloader);
+    ClassRealm realm = AccessController.doPrivileged(new PrivilegedAction<ClassRealm>() {
+      @Override
+      public ClassRealm run() {
+        return new ClassRealm(key, baseClassloader);
+      }
+    });
     // default strategy is parent-first
     realm.setStrategy(LoadingOrder.PARENT_FIRST.strategy);
     newRealmsByKey.put(key, new NewRealm(realm));
