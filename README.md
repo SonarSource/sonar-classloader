@@ -7,7 +7,7 @@ This library is available under GNU LGPLv3.
 ## Maven Dependency
 
     <dependency>
-      <groupId>org.codehaus.sonar-plugins</groupId>
+      <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-classloader</artifactId>
       <version>${classloader.version}</version>
     </dependency>
@@ -129,8 +129,6 @@ Map<String, ClassLoader> classloaders = builder
 ```
 
 ## Changelog
-
-Version 0.1 not released yet. 
 
 Ability to print the details of classloaders is not implemented yet.
 
