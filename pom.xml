@@ -30,6 +30,13 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
 
+  <scm>
+    <connection>scm:git:git@github.com:SonarSource/sonar-classloader.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSource/sonar-classloader.git</developerConnection>
+    <url>https://github.com/SonarSource/sonar-classloader</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <distributionManagement>
     <repository>
       <id>codehaus-nexus-staging</id>
