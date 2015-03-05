@@ -7,6 +7,7 @@
     <artifactId>parent</artifactId>
     <version>19</version>
   </parent>
+  <groupId>org.codehaus.sonar</groupId>
   <artifactId>sonar-classloader</artifactId>
   <version>0.1-SNAPSHOT</version>
   <name>Sonar Classloader</name>
@@ -28,6 +29,19 @@
   <properties>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
+
+  <distributionManagement>
+    <repository>
+      <id>codehaus-nexus-staging</id>
+      <name>Codehaus Release Repository</name>
+      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>sonar-snapshots</id>
+      <url>${sonar.snapshotRepository.url}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
