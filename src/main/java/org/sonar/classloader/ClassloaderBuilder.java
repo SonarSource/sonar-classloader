@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ClassloaderBuilder {
 
-  public static enum LoadingOrder {
+  public enum LoadingOrder {
     /**
      * Order: siblings, then parent, then self
      */
