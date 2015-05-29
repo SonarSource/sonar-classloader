@@ -20,7 +20,11 @@
 package org.sonar.classloader;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * A mask restricts access of a classloader to resources through inclusion and exclusion patterns.
@@ -35,27 +39,26 @@ import java.util.List;
  */
 public class Mask {
 
-  private static final String ROOT = "" +
-    "/";
-  private final List<String> inclusions = new ArrayList<>();
-  private final List<String> exclusions = new ArrayList<>();
+  public static Mask ALL = Mask.builder().build();
 
-  List<String> getInclusions() {
+  private static final String ROOT = "/";
+  private final Set<String> inclusions, exclusions;
+
+  private Mask(Builder builder) {
+    this.inclusions = Collections.unmodifiableSet(builder.inclusions);
+    this.exclusions = Collections.unmodifiableSet(builder.exclusions);
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public Set<String> getInclusions() {
     return inclusions;
   }
 
-  List<String> getExclusions() {
+  public Set<String> getExclusions() {
     return exclusions;
-  }
-
-  public Mask addInclusion(String s) {
-    inclusions.add(s);
-    return this;
-  }
-
-  public Mask addExclusion(String s) {
-    exclusions.add(s);
-    return this;
   }
 
   boolean acceptClass(String classname) {
@@ -91,35 +94,92 @@ public class Mask {
     return pattern.equals(ROOT) || (pattern.endsWith("/") && name.startsWith(pattern)) || pattern.equals(name);
   }
 
-  void merge(Mask with) {
-    List<String> lowestIncludes = new ArrayList<>();
-
-    if (inclusions.isEmpty()) {
-      lowestIncludes.addAll(with.inclusions);
-    } else if (with.inclusions.isEmpty()) {
-      lowestIncludes.addAll(inclusions);
-    } else {
-      for (String include : inclusions) {
-        for (String fromInclude : with.inclusions) {
-          if (fromInclude.startsWith(include)) {
-            lowestIncludes.add(fromInclude);
-          }
-        }
-      }
-      for (String fromInclude : with.inclusions) {
-        for (String include : inclusions) {
-          if (include.startsWith(fromInclude)) {
-            lowestIncludes.add(include);
-          }
-        }
-      }
-    }
-    inclusions.clear();
-    inclusions.addAll(lowestIncludes);
-    exclusions.addAll(with.exclusions);
-  }
-
   private String classToResource(String classname) {
     return classname.replace('.', '/') + ".class";
+  }
+
+
+  public static class Builder {
+    private final Set<String> inclusions = new HashSet<>();
+    private final Set<String> exclusions = new HashSet<>();
+
+    private Builder() {
+    }
+
+    public Builder include(String path, String... others) {
+      doInclude(path);
+      for (String other : others) {
+        doInclude(other);
+      }
+      return this;
+    }
+
+    public Builder exclude(String path, String... others) {
+      doExclude(path);
+      for (String other : others) {
+        doExclude(other);
+      }
+      return this;
+    }
+
+    public Builder copy(Mask with) {
+      this.inclusions.addAll(with.inclusions);
+      this.exclusions.addAll(with.exclusions);
+      return this;
+    }
+
+    public Builder merge(Mask with) {
+      List<String> lowestIncludes = new ArrayList<>();
+
+      if (inclusions.isEmpty()) {
+        lowestIncludes.addAll(with.inclusions);
+      } else if (with.inclusions.isEmpty()) {
+        lowestIncludes.addAll(inclusions);
+      } else {
+        for (String include : inclusions) {
+          for (String fromInclude : with.inclusions) {
+            if (fromInclude.startsWith(include)) {
+              lowestIncludes.add(fromInclude);
+            }
+          }
+        }
+        for (String fromInclude : with.inclusions) {
+          for (String include : inclusions) {
+            if (include.startsWith(fromInclude)) {
+              lowestIncludes.add(include);
+            }
+          }
+        }
+      }
+      inclusions.clear();
+      inclusions.addAll(lowestIncludes);
+      exclusions.addAll(with.exclusions);
+      return this;
+    }
+
+    public Mask build() {
+      return new Mask(this);
+    }
+
+    private void doInclude(@Nullable String path) {
+      this.inclusions.add(validatePath(path));
+    }
+
+    private void doExclude(@Nullable String path) {
+      this.exclusions.add(validatePath(path));
+    }
+
+    private String validatePath(@Nullable String path) {
+      if (path == null) {
+        throw new IllegalArgumentException("Mask path must not be null");
+      }
+      if (path.startsWith("/") && path.length()>1) {
+        throw new IllegalArgumentException("Mask path must not start with slash: ");
+      }
+      if (path.contains("*")) {
+        throw new IllegalArgumentException("Mask path is not a wildcard pattern and should not contain star characters (*): " + path);
+      }
+      return path;
+    }
   }
 }

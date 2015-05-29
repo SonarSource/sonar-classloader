@@ -25,129 +25,134 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class MaskTest {
 
-  Mask sut = new Mask();
-
   @Test
-  public void no_filtering() throws Exception {
-    assertThat(sut.acceptClass("org.sonar.Bar")).isTrue();
-    assertThat(sut.acceptClass("Bar")).isTrue();
+  public void ALL_accepts_everything() throws Exception {
+
+    assertThat(Mask.ALL.acceptClass("org.sonar.Bar")).isTrue();
+    assertThat(Mask.ALL.acceptClass("Bar")).isTrue();
   }
 
   @Test
-  public void class_inclusion() throws Exception {
-    sut.addInclusion("org/sonar/Bar.class");
-    assertThat(sut.acceptClass("org.sonar.Bar")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.qube.Bar")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.Foo")).isFalse();
-    assertThat(sut.acceptClass("Bar")).isFalse();
+  public void include_class() throws Exception {
+    Mask mask = Mask.builder().include("org/sonar/Bar.class").build();
+    assertThat(mask.acceptClass("org.sonar.Bar")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.qube.Bar")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isFalse();
+    assertThat(mask.acceptClass("Bar")).isFalse();
   }
 
   @Test
-  public void resource_inclusion() throws Exception {
-    sut.addInclusion("org/sonar/Bar.class");
-    assertThat(sut.acceptResource("org/sonar/Bar.class")).isTrue();
-    assertThat(sut.acceptResource("org/sonar/qube/Bar.class")).isFalse();
-    assertThat(sut.acceptResource("org/sonar/Foo.class")).isFalse();
-    assertThat(sut.acceptResource("Bar.class")).isFalse();
+  public void include_resource() throws Exception {
+    Mask mask = Mask.builder().include("org/sonar/Bar.class").build();
+    assertThat(mask.acceptResource("org/sonar/Bar.class")).isTrue();
+    assertThat(mask.acceptResource("org/sonar/qube/Bar.class")).isFalse();
+    assertThat(mask.acceptResource("org/sonar/Foo.class")).isFalse();
+    assertThat(mask.acceptResource("Bar.class")).isFalse();
   }
 
   @Test
-  public void package_inclusion() throws Exception {
-    sut.addInclusion("org/sonar/");
-    assertThat(sut.acceptClass("Foo")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.Bar")).isTrue();
-    assertThat(sut.acceptClass("org.sonarqube.Foo")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.qube.Foo")).isTrue();
-    assertThat(sut.acceptClass("Bar")).isFalse();
+  public void include_package() throws Exception {
+    Mask mask = Mask.builder().include("org/sonar/", "org/other/").build();
+    assertThat(mask.acceptClass("Foo")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.Bar")).isTrue();
+    assertThat(mask.acceptClass("org.sonarqube.Foo")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.qube.Foo")).isTrue();
+    assertThat(mask.acceptClass("Bar")).isFalse();
   }
 
   @Test
-  public void class_exclusion() throws Exception {
-    sut.addExclusion("org/sonar/Bar.class");
-    assertThat(sut.acceptClass("org.sonar.Bar")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.qube.Bar")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.Foo")).isTrue();
-    assertThat(sut.acceptClass("Bar")).isTrue();
+  public void exclude_class() throws Exception {
+    Mask mask = Mask.builder().exclude("org/sonar/Bar.class").build();
+    assertThat(mask.acceptClass("org.sonar.Bar")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.qube.Bar")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isTrue();
+    assertThat(mask.acceptClass("Bar")).isTrue();
   }
 
   @Test
-  public void package_exclusion() throws Exception {
-    sut.addExclusion("org/sonar/");
-    assertThat(sut.acceptClass("Foo")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.Bar")).isFalse();
-    assertThat(sut.acceptClass("org.sonarqube.Foo")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.qube.Foo")).isFalse();
-    assertThat(sut.acceptClass("Bar")).isTrue();
+  public void exclude_package() throws Exception {
+    Mask mask = Mask.builder().exclude("org/sonar/", "org/other/").build();
+    assertThat(mask.acceptClass("Foo")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.Bar")).isFalse();
+    assertThat(mask.acceptClass("org.sonarqube.Foo")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.qube.Foo")).isFalse();
+    assertThat(mask.acceptClass("Bar")).isTrue();
   }
 
   @Test
   public void exclusion_is_subset_of_inclusion() throws Exception {
-    sut.addInclusion("org/sonar/");
-    sut.addExclusion("org/sonar/qube/");
-    assertThat(sut.acceptClass("org.sonar.Foo")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.Qube")).isTrue();
-    assertThat(sut.acceptClass("org.sonar.qube.Foo")).isFalse();
+    Mask mask = Mask.builder()
+      .include("org/sonar/")
+      .exclude("org/sonar/qube/")
+      .build();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.Qube")).isTrue();
+    assertThat(mask.acceptClass("org.sonar.qube.Foo")).isFalse();
   }
 
   @Test
   public void inclusion_is_subset_of_exclusion() throws Exception {
-    sut.addExclusion("org/sonar/");
-    sut.addInclusion("org/sonar/qube/");
-    assertThat(sut.acceptClass("org.sonar.Foo")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.Qube")).isFalse();
-    assertThat(sut.acceptClass("org.sonar.qube.Foo")).isFalse();
+    Mask mask = Mask.builder()
+      .include("org/sonar/qube/")
+      .exclude("org/sonar/")
+      .build();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.Qube")).isFalse();
+    assertThat(mask.acceptClass("org.sonar.qube.Foo")).isFalse();
   }
 
   @Test
   public void exclude_everything() throws Exception {
-    sut.addExclusion("/");
-    assertThat(sut.acceptClass("org.sonar.Foo")).isFalse();
-    assertThat(sut.acceptClass("Foo")).isFalse();
-    assertThat(sut.acceptResource("config.xml")).isFalse();
-    assertThat(sut.acceptResource("org/config.xml")).isFalse();
+    Mask mask = Mask.builder().exclude("/").build();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isFalse();
+    assertThat(mask.acceptClass("Foo")).isFalse();
+    assertThat(mask.acceptResource("config.xml")).isFalse();
+    assertThat(mask.acceptResource("org/config.xml")).isFalse();
   }
 
   @Test
   public void include_everything() throws Exception {
-    sut.addInclusion("/");
-    assertThat(sut.acceptClass("org.sonar.Foo")).isTrue();
-    assertThat(sut.acceptClass("Foo")).isTrue();
-    assertThat(sut.acceptResource("config.xml")).isTrue();
-    assertThat(sut.acceptResource("org/config.xml")).isTrue();
+    Mask mask = Mask.builder().include("/").build();
+    assertThat(mask.acceptClass("org.sonar.Foo")).isTrue();
+    assertThat(mask.acceptClass("Foo")).isTrue();
+    assertThat(mask.acceptResource("config.xml")).isTrue();
+    assertThat(mask.acceptResource("org/config.xml")).isTrue();
   }
 
   @Test
-  public void merge_with_none() throws Exception {
-    sut.addInclusion("org/foo/");
-    sut.addExclusion("org/bar/");
-    sut.merge(new Mask());
+  public void merge_with_ALL() throws Exception {
+    Mask mask = Mask.builder()
+      .include("org/foo/")
+      .exclude("org/bar/")
+      .merge(Mask.ALL)
+      .build();
 
-    assertThat(sut.getInclusions()).containsOnly("org/foo/");
-    assertThat(sut.getExclusions()).containsOnly("org/bar/");
+    assertThat(mask.getInclusions()).containsOnly("org/foo/");
+    assertThat(mask.getExclusions()).containsOnly("org/bar/");
   }
 
   @Test
   public void merge_exclusions() throws Exception {
-    sut.addExclusion("org/foo/");
-    sut.merge(new Mask().addExclusion("bar/"));
+    Mask with = Mask.builder().exclude("bar/").build();
+    Mask mask = Mask.builder().exclude("org/foo/").merge(with).build();
 
-    assertThat(sut.getExclusions()).containsOnly("org/foo/", "bar/");
+    assertThat(mask.getExclusions()).containsOnly("org/foo/", "bar/");
   }
 
   @Test
-  public void merge_disjoined_inclusions() throws Exception {
-    sut.addInclusion("org/foo/");
-    sut.merge(new Mask().addInclusion("org/bar/"));
+  public void should_not_merge_disjoined_inclusions() throws Exception {
+    Mask with = Mask.builder().include("org/bar/").build();
+    Mask mask = Mask.builder().include("org/foo/").merge(with).build();
 
-    assertThat(sut.getInclusions()).isEmpty();
+    assertThat(mask.getInclusions()).isEmpty();
+    // TODO does that mean that merge result accepts everything ?
   }
 
   @Test
   public void merge_inclusions() throws Exception {
-    sut.addInclusion("org/foo/");
-    sut.addInclusion("org/bar/sub/");
-    sut.merge(new Mask().addInclusion("org/foo/sub/").addInclusion("org/bar/"));
+    Mask with = Mask.builder().include("org/foo/sub/", "org/bar/").build();
+    Mask mask = Mask.builder().include("org/foo/", "org/bar/sub/").merge(with).build();
 
-    assertThat(sut.getInclusions()).containsOnly("org/foo/sub/", "org/bar/sub/");
+    assertThat(mask.getInclusions()).containsOnly("org/foo/sub/", "org/bar/sub/");
   }
 }

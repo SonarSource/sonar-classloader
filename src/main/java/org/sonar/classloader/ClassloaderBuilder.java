@@ -57,7 +57,7 @@ public class ClassloaderBuilder {
   private static class NewRealm {
     private final ClassRealm realm;
 
-    private Mask exportMask = new Mask();
+    private Mask exportMask = Mask.ALL;
 
     // key of the optional parent classloader
     private String parentKey;
@@ -152,13 +152,13 @@ public class ClassloaderBuilder {
       if (newRealm.parentKey != null) {
         NewRealm parent = getOrFail(newRealm.parentKey);
         Mask parentMask = newRealm.associatedMasks.get(newRealm.parentKey);
-        mergeWithExportMask(parentMask, newRealm.parentKey);
+        parentMask = mergeWithExportMask(parentMask, newRealm.parentKey);
         newRealm.realm.setParent(new DefaultClassloaderRef(parent.realm, parentMask));
       }
       for (String siblingKey : newRealm.siblingKeys) {
         NewRealm sibling = getOrFail(siblingKey);
         Mask siblingMask = newRealm.associatedMasks.get(siblingKey);
-        mergeWithExportMask(siblingMask, siblingKey);
+        siblingMask = mergeWithExportMask(siblingMask, siblingKey);
         newRealm.realm.addSibling(new DefaultClassloaderRef(sibling.realm, siblingMask));
       }
       result.put(newRealm.realm.getKey(), newRealm.realm);
@@ -166,11 +166,12 @@ public class ClassloaderBuilder {
     return result;
   }
 
-  private void mergeWithExportMask(Mask mask, String exportKey) {
+  private Mask mergeWithExportMask(Mask mask, String exportKey) {
     NewRealm newRealm = newRealmsByKey.get(exportKey);
     if (newRealm != null) {
-      mask.merge(newRealm.exportMask);
+      return Mask.builder().copy(mask).merge(newRealm.exportMask).build();
     }
+    return mask;
   }
 
   private NewRealm getOrFail(String key) {

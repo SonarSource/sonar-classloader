@@ -32,7 +32,7 @@ import java.util.List;
 class ClassRealm extends URLClassLoader implements StrategyContext {
 
   private final String key;
-  private Mask mask = new Mask();
+  private Mask mask = Mask.ALL;
   private ClassloaderRef parentRef = NullClassloaderRef.INSTANCE;
   private List<ClassloaderRef> siblingRefs = new ArrayList<>();
   private Strategy strategy;

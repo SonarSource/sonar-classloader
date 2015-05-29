@@ -101,11 +101,11 @@ public class ClassloaderBuilderTest {
       // order of declaration is not important -> declare grand-child before child
       .newClassloader("the-grand-child")
       .addURL("the-grand-child", new File("tester/c.jar").toURL())
-      .setParent("the-grand-child", "the-child", new Mask())
+      .setParent("the-grand-child", "the-child", Mask.ALL)
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/b.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
 
       .build();
 
@@ -148,7 +148,7 @@ public class ClassloaderBuilderTest {
     Map<String, ClassLoader> newClassloaders = sut
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a.jar").toURL())
-      .setParent("the-child", parent, new Mask())
+      .setParent("the-child", parent, Mask.ALL)
       .build();
 
     assertThat(newClassloaders).hasSize(1);
@@ -169,7 +169,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a_v2.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -197,7 +197,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a_v2.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .setLoadingOrder("the-child", ClassloaderBuilder.LoadingOrder.SELF_FIRST)
       .build();
 
@@ -227,7 +227,7 @@ public class ClassloaderBuilderTest {
       .newClassloader("the-cl")
       .addURL("the-cl", new File("tester/a.jar").toURL())
       .addURL("the-cl", new File("tester/b.jar").toURL())
-      .setMask("the-cl", new Mask().addExclusion("A.class").addExclusion("a.txt"))
+      .setMask("the-cl", Mask.builder().exclude("A.class", "a.txt").build())
       .build();
 
     ClassLoader cl = classloaders.get("the-cl");
@@ -249,7 +249,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/c.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask().addExclusion("A.class").addExclusion("a.txt"))
+      .setParent("the-child", "the-parent", Mask.builder().exclude("A.class", "a.txt").build())
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -278,10 +278,10 @@ public class ClassloaderBuilderTest {
       .newClassloader("the-parent")
       .addURL("the-parent", new File("tester/a.jar").toURL())
       .addURL("the-parent", new File("tester/b.jar").toURL())
-      .setExportMask("the-parent", new Mask().addExclusion("A.class").addExclusion("a.txt"))
+      .setExportMask("the-parent", Mask.builder().exclude("A.class", "a.txt").build())
 
       .newClassloader("the-child")
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -309,10 +309,10 @@ public class ClassloaderBuilderTest {
       .addURL("the-parent", new File("tester/a.jar").toURL())
       .addURL("the-parent", new File("tester/b.jar").toURL())
       .addURL("the-parent", new File("tester/c.jar").toURL())
-      .setExportMask("the-parent", new Mask().addExclusion("A.class").addExclusion("a.txt"))
+      .setExportMask("the-parent", Mask.builder().exclude("A.class", "a.txt").build())
 
       .newClassloader("the-child")
-      .setParent("the-child", "the-parent", new Mask().addExclusion("B.class").addExclusion("b.txt"))
+      .setParent("the-child", "the-parent", Mask.builder().exclude("B.class", "b.txt").build())
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -346,7 +346,7 @@ public class ClassloaderBuilderTest {
   @Test
   public void fail_if_missing_declaration() throws Exception {
     sut.newClassloader("the-cl");
-    sut.setParent("the-cl", "missing", new Mask());
+    sut.setParent("the-cl", "missing", Mask.ALL);
     try {
       sut.build();
       fail();
@@ -369,8 +369,8 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/c.jar").toURL())
-      .addSibling("the-child", "sib1", new Mask())
-      .addSibling("the-child", "sib2", new Mask())
+      .addSibling("the-child", "sib1", Mask.ALL)
+      .addSibling("the-child", "sib2", Mask.ALL)
       .build();
 
     ClassLoader sib1 = newClassloaders.get("sib1");
@@ -408,7 +408,7 @@ public class ClassloaderBuilderTest {
     Map<String, ClassLoader> newClassloaders = sut
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a.jar").toURL())
-      .addSibling("the-child", getClass().getClassLoader(), new Mask())
+      .addSibling("the-child", getClass().getClassLoader(), Mask.ALL)
       .build();
 
     ClassLoader child = newClassloaders.get("the-child");
@@ -429,7 +429,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/c.jar").toURL())
-      .addSibling("the-child", "sib1", new Mask().addExclusion("A.class").addExclusion("a.txt"))
+      .addSibling("the-child", "sib1", Mask.builder().exclude("A.class", "a.txt").build())
       .build();
 
     ClassLoader sib1 = newClassloaders.get("sib1");
@@ -460,11 +460,11 @@ public class ClassloaderBuilderTest {
       .newClassloader("sib1")
       .addURL("sib1", new File("tester/a.jar").toURL())
       .addURL("sib1", new File("tester/b.jar").toURL())
-      .setExportMask("sib1", new Mask().addInclusion("B.class").addInclusion("b.txt"))
+      .setExportMask("sib1", Mask.builder().include("B.class", "b.txt").build())
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/c.jar").toURL())
-      .addSibling("the-child", "sib1", new Mask())
+      .addSibling("the-child", "sib1", Mask.ALL)
       .build();
 
     ClassLoader sib1 = newClassloaders.get("sib1");
@@ -498,7 +498,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("self")
       .addURL("self", new File("tester/a_v2.jar").toURL())
-      .addSibling("self", "sib", new Mask())
+      .addSibling("self", "sib", Mask.ALL)
       .build();
 
     ClassLoader sib = newClassloaders.get("sib");
@@ -525,7 +525,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("self")
       .addURL("self", new File("tester/a_v2.jar").toURL())
-      .addSibling("self", "sib", new Mask())
+      .addSibling("self", "sib", Mask.ALL)
       .setLoadingOrder("self", ClassloaderBuilder.LoadingOrder.SELF_FIRST)
       .build();
 
@@ -552,8 +552,8 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("b")
       .addURL("b", new File("tester/b.jar").toURL())
-      .addSibling("a", "b", new Mask())
-      .addSibling("b", "a", new Mask())
+      .addSibling("a", "b", Mask.ALL)
+      .addSibling("b", "a", Mask.ALL)
       .build();
 
     ClassLoader a = newClassloaders.get("a");
@@ -580,8 +580,8 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/c.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
-      .addSibling("the-child", "the-sib", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
+      .addSibling("the-child", "the-sib", Mask.ALL)
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -603,7 +603,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a_v2.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .build();
 
     ClassLoader parent = newClassloaders.get("the-parent");
@@ -624,7 +624,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a_v2.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .build();
 
     ClassLoader parent = newClassloaders.get("the-child");
@@ -645,7 +645,7 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("the-child")
       .addURL("the-child", new File("tester/a_v2.jar").toURL())
-      .setParent("the-child", "the-parent", new Mask())
+      .setParent("the-child", "the-parent", Mask.ALL)
       .setLoadingOrder("the-child", ClassloaderBuilder.LoadingOrder.SELF_FIRST)
       .build();
 
