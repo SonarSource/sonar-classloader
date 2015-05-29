@@ -53,10 +53,10 @@ Map<String, ClassLoader> classloaders = builder
   
   .newClassloader("the-child")
   .addURL("the-child", childJar)
-  .setParent("the-child", "the-parent", new Mask())
+  .setParent("the-child", "the-parent", Mask.ALL)
   
   .newClassloader("the-grand-child")
-  .setParent("the-grand-child", "the-child", new Mask())
+  .setParent("the-grand-child", "the-child", Mask.ALL)
   // can be parent-first or self-first ordering strategy. Default is parent-first.
   .setLoadingOrder("the-grand-child", LoadingOrder.SELF_FIRST)
   
@@ -76,9 +76,9 @@ Map<String, ClassLoader> classloaders = builder
   .newClassloader("sibling1")
   .newClassloader("sibling2")
   .newClassloader("the-child")
-  .setParent("the-child", "the-parent", new Mask())
-  .addSibling("the-child", "sibling1", new Mask())
-  .addSibling("the-child", "sibling2", new Mask())
+  .setParent("the-child", "the-parent", Mask.ALL)
+  .addSibling("the-child", "sibling1", Mask.ALL)
+  .addSibling("the-child", "sibling2", Mask.ALL)
   .build();
 ```
 
@@ -96,7 +96,7 @@ ClassloaderBuilder builder = new ClassloaderBuilder();
 Map<String, ClassLoader> classloaders = builder
   .newClassloader("a")
   .newClassloader("b")
-  .addSibling("a", "b", new Mask().addExclusion("org/foo/"))
+  .addSibling("a", "b", Mask.builder().exclude("org/foo/").build())
   .build();
 ```
 
@@ -107,11 +107,11 @@ When the same patterns are defined multiple times for each usage of a classloade
 ClassloaderBuilder builder = new ClassloaderBuilder();
 Map<String, ClassLoader> classloaders = builder
   .newClassloader("a")
-  .setExportMask(new Mask().addInclusion("org/a/api/"))
+  .setExportMask(Mask.builder().include("org/a/api/").build())
   .newClassloader("b")
   .newClassloader("c")
-  .addSibling("b", "a", new Mask())
-  .addSibling("c", "a", new Mask())
+  .addSibling("b", "a", Mask.ALL)
+  .addSibling("c", "a", Mask.ALL)
   .build();
 ```
 
@@ -123,8 +123,8 @@ Map<String, ClassLoader> classloaders = builder
   .newClassloader("a")
   .newClassloader("b")
   .newClassloader("c")
-  .addSibling("b", "a", new Mask().addInclusion("org/a/api/"))
-  .addSibling("c", "a", new Mask().addInclusion("org/a/api/"))
+  .addSibling("b", "a", Mask.builder().include("org/a/api/").build())
+  .addSibling("c", "a", Mask.builder().include("org/a/api/").build())
   .build();
 ```
 
