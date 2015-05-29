@@ -11,12 +11,13 @@
   <version>1.1-SNAPSHOT</version>
   <name>Sonar Classloader</name>
   <description>Java classloader toolbox</description>
-
   <inceptionYear>2015</inceptionYear>
+
   <organization>
     <name>SonarSource</name>
     <url>http://www.sonarsource.com</url>
   </organization>
+
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
@@ -24,6 +25,11 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <issueManagement>
+    <system>github</system>
+    <url>https://github.com/SonarSource/sonar-classloader/issues</url>
+  </issueManagement>
 
   <properties>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
