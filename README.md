@@ -128,10 +128,6 @@ Map<String, ClassLoader> classloaders = builder
   .build();
 ```
 
-## Changelog
-
-Ability to print the details of classloaders is not implemented yet.
-
 ## License
 
     Copyright (C) 2015 SonarSource
