@@ -9,7 +9,7 @@ This library is available under GNU LGPLv3.
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-classloader</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.1</version>
     </dependency>
 
 ## Usage
