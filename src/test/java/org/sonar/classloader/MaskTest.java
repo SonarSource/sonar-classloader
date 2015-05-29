@@ -27,9 +27,14 @@ public class MaskTest {
 
   @Test
   public void ALL_accepts_everything() throws Exception {
-
     assertThat(Mask.ALL.acceptClass("org.sonar.Bar")).isTrue();
     assertThat(Mask.ALL.acceptClass("Bar")).isTrue();
+  }
+
+  @Test
+  public void NONE_accepts_nothing() throws Exception {
+    assertThat(Mask.NONE.acceptClass("org.sonar.Bar")).isFalse();
+    assertThat(Mask.NONE.acceptClass("Bar")).isFalse();
   }
 
   @Test

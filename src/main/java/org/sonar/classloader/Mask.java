@@ -39,9 +39,20 @@ import javax.annotation.Nullable;
  */
 public class Mask {
 
+  private static final String ROOT = "/";
+
+  /**
+   * Accepts everything
+   * @since 1.1
+   */
   public static Mask ALL = Mask.builder().build();
 
-  private static final String ROOT = "/";
+  /**
+   * Accepts nothing
+   * @since 1.1
+   */
+  public static Mask NONE = Mask.builder().exclude(ROOT).build();
+
   private final Set<String> inclusions, exclusions;
 
   private Mask(Builder builder) {
@@ -49,6 +60,11 @@ public class Mask {
     this.exclusions = Collections.unmodifiableSet(builder.exclusions);
   }
 
+  /**
+   * Create a {@link Builder} for building immutable instances of {@link Mask}
+   *
+   * @since 1.1
+   */
   public static Builder builder() {
     return new Builder();
   }
