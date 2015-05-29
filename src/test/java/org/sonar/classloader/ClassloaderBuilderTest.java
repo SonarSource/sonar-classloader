@@ -19,9 +19,6 @@
  */
 package org.sonar.classloader;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,6 +26,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -540,6 +540,35 @@ public class ClassloaderBuilderTest {
     assertThat(IOUtils.toString(self.getResource("a.txt"))).startsWith("version 1 of a.txt");
   }
 
+  /**
+   * https://github.com/SonarSource/sonar-classloader/issues/1
+   */
+  @Test
+  @Ignore("This test reproduces the bug... which is not fixed yet")
+  public void cycle_of_siblings() throws Exception {
+    Map<String, ClassLoader> newClassloaders = sut
+      .newClassloader("a")
+      .addURL("a", new File("tester/a.jar").toURL())
+
+      .newClassloader("b")
+      .addURL("b", new File("tester/b.jar").toURL())
+      .addSibling("a", "b", new Mask())
+      .addSibling("b", "a", new Mask())
+      .build();
+
+    ClassLoader a = newClassloaders.get("a");
+    assertThat(canLoadClass(a, "A")).isTrue();
+    assertThat(canLoadClass(a, "B")).isTrue();
+    assertThat(IOUtils.toString(a.getResource("a.txt"))).isNotEmpty();
+    assertThat(IOUtils.toString(a.getResource("b.txt"))).isNotEmpty();
+
+    ClassLoader b = newClassloaders.get("b");
+    assertThat(canLoadClass(b, "A")).isTrue();
+    assertThat(canLoadClass(b, "B")).isTrue();
+    assertThat(IOUtils.toString(b.getResource("a.txt"))).isNotEmpty();
+    assertThat(IOUtils.toString(b.getResource("b.txt"))).isNotEmpty();
+  }
+
   @Test
   public void getResources_from_parent_and_siblings() throws Exception {
     Map<String, ClassLoader> newClassloaders = sut
@@ -628,7 +657,6 @@ public class ClassloaderBuilderTest {
     } catch (ClassNotFoundException e) {
       // ok
     }
-
   }
 
   private boolean canLoadClass(ClassLoader classloader, String classname) {
