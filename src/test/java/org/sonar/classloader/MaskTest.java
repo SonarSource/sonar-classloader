@@ -47,6 +47,13 @@ public class MaskTest {
   }
 
   @Test
+  public void include_class_of_root_package() throws Exception {
+    Mask mask = Mask.builder().include("Bar.class").build();
+    assertThat(mask.acceptClass("Bar")).isTrue();
+    assertThat(mask.acceptClass("Foo")).isFalse();
+  }
+
+  @Test
   public void include_resource() throws Exception {
     Mask mask = Mask.builder().include("org/sonar/Bar.class").build();
     assertThat(mask.acceptResource("org/sonar/Bar.class")).isTrue();

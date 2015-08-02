@@ -72,10 +72,19 @@ public class ClassloaderBuilder {
 
   private final Map<String, NewRealm> newRealmsByKey = new HashMap<>();
 
+  /**
+   * Declares a new classloader based on system classloader.
+   */
   public ClassloaderBuilder newClassloader(String key) {
     return newClassloader(key, getSystemClassloader());
   }
 
+  /**
+   * Declares a new classloader based on a given parent classloader. Key must be unique. An
+   * {@link IllegalArgumentException} is thrown if the key is already referenced.
+   * <p/>
+   * Default loading order is {@link LoadingOrder#PARENT_FIRST}.
+   */
   public ClassloaderBuilder newClassloader(final String key, final ClassLoader baseClassloader) {
     if (newRealmsByKey.containsKey(key)) {
       throw new IllegalStateException(String.format("The classloader '%s' already exists. Can not create it twice.", key));
@@ -86,7 +95,6 @@ public class ClassloaderBuilder {
         return new ClassRealm(key, baseClassloader);
       }
     });
-    // default strategy is parent-first
     realm.setStrategy(LoadingOrder.PARENT_FIRST.strategy);
     newRealmsByKey.put(key, new NewRealm(realm));
     return this;

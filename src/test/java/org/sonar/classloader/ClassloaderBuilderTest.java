@@ -544,7 +544,6 @@ public class ClassloaderBuilderTest {
    * https://github.com/SonarSource/sonar-classloader/issues/1
    */
   @Test
-  @Ignore("This test reproduces the bug... which is not fixed yet")
   public void cycle_of_siblings() throws Exception {
     Map<String, ClassLoader> newClassloaders = sut
       .newClassloader("a")
@@ -552,8 +551,8 @@ public class ClassloaderBuilderTest {
 
       .newClassloader("b")
       .addURL("b", new File("tester/b.jar").toURL())
-      .addSibling("a", "b", Mask.ALL)
-      .addSibling("b", "a", Mask.ALL)
+      .addSibling("a", "b", Mask.builder().include("B.class", "b.txt").build())
+      .addSibling("b", "a", Mask.builder().include("A.class", "a.txt").build())
       .build();
 
     ClassLoader a = newClassloaders.get("a");
