@@ -195,7 +195,7 @@ public class ClassloaderBuilder {
    * - ClassLoader.getSystemClassLoader() is sun.misc.Launcher$AppClassLoader. It contains app classpath.
    * - ClassLoader.getSystemClassLoader().getParent() is sun.misc.Launcher$ExtClassLoader. It is the JRE core classloader.
    */
-  private ClassLoader getSystemClassloader() {
+  private static ClassLoader getSystemClassloader() {
     ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
     ClassLoader systemParent = systemClassLoader.getParent();
     if (systemParent != null) {

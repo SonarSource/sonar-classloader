@@ -45,15 +45,16 @@ public class Mask {
    * Accepts everything
    * @since 1.1
    */
-  public static Mask ALL = Mask.builder().build();
+  public static final Mask ALL = Mask.builder().build();
 
   /**
    * Accepts nothing
    * @since 1.1
    */
-  public static Mask NONE = Mask.builder().exclude(ROOT).build();
+  public static final Mask NONE = Mask.builder().exclude(ROOT).build();
 
-  private final Set<String> inclusions, exclusions;
+  private final Set<String> inclusions;
+  private final Set<String> exclusions;
 
   private Mask(Builder builder) {
     this.inclusions = Collections.unmodifiableSet(builder.inclusions);
@@ -106,11 +107,11 @@ public class Mask {
     return ok;
   }
 
-  private boolean matchPattern(String name, String pattern) {
+  private static boolean matchPattern(String name, String pattern) {
     return pattern.equals(ROOT) || (pattern.endsWith("/") && name.startsWith(pattern)) || pattern.equals(name);
   }
 
-  private String classToResource(String classname) {
+  private static String classToResource(String classname) {
     return classname.replace('.', '/') + ".class";
   }
 
@@ -185,7 +186,7 @@ public class Mask {
       this.exclusions.add(validatePath(path));
     }
 
-    private String validatePath(@Nullable String path) {
+    private static String validatePath(@Nullable String path) {
       if (path == null) {
         throw new IllegalArgumentException("Mask path must not be null");
       }
