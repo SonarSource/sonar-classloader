@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.codehaus.sonar-plugins</groupId>
+    <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>19</version>
+    <version>31</version>
   </parent>
-  <groupId>org.codehaus.sonar</groupId>
+  <groupId>org.sonarsource.sonar-classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
   <version>1.1-SNAPSHOT</version>
-  <name>Sonar Classloader</name>
+  <name>sonar-classloader</name>
   <description>Java classloader toolbox</description>
   <inceptionYear>2015</inceptionYear>
 
@@ -41,19 +41,6 @@
     <url>https://github.com/SonarSource/sonar-classloader</url>
     <tag>HEAD</tag>
   </scm>
-
-  <distributionManagement>
-    <repository>
-      <id>codehaus-nexus-staging</id>
-      <name>Codehaus Release Repository</name>
-      <url>https://nexus.codehaus.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>sonar-snapshots</id>
-      <url>${sonar.snapshotRepository.url}</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
 
   <dependencies>
     <dependency>
