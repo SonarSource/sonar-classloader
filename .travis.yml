@@ -7,21 +7,15 @@ script:
   - ./travis.sh
 
 install: true
-
 sudo: false
 
 cache:
   directories:
     - $HOME/.m2/repository
-    # for analysis
     - $HOME/.sonar
 
 notifications:
   email: false
-
-addons:
-  apt:
-    packages:
-      # upgrade java 8 as the default version 1.8.0_31 prevents from compiling sources
-      # https://github.com/travis-ci/travis-ci/issues/4042
-      - oracle-java8-installer
+  webhooks:
+    - secure: "iWBbJ/DPTUTxopx7Q68fS4yNfMFfLOfMhwscKs521Yjl/GQN/HQTQIBCwckwCUssw5iD7sc9tv67JmEk3Jn7ehihdKPKiBUzdXtn0aaqevLkdwARwvGONP5ZMraTog7o9iCUq4dU3/Mtb0exmPmTCrN+GKfKeLdnWOL+R50/ZIs="
+  on_start: always
