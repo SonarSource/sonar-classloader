@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>31</version>
+    <version>37</version>
   </parent>
   <groupId>org.sonarsource.sonar-classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
@@ -33,6 +33,9 @@
 
   <properties>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+
+    <!-- used for deployment to SonarSource Artifactory -->
+    <gitRepositoryName>sonar-classloader</gitRepositoryName>
   </properties>
 
   <scm>
@@ -109,27 +112,6 @@
                 <goals>
                   <goal>sign</goal>
                 </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-enforcer-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>enforce-java7</id>
-                <goals>
-                  <goal>enforce</goal>
-                </goals>
-                <configuration>
-                  <rules>
-                    <requireJavaVersion>
-                      <message>To release this project JDK ${jdk.min.version} is required.
-                      </message>
-                      <version>[1.7,)</version>
-                    </requireJavaVersion>
-                  </rules>
-                </configuration>
               </execution>
             </executions>
           </plugin>
