@@ -32,6 +32,7 @@
   </issueManagement>
 
   <properties>
+    <sonar.organization>sonarsource</sonar.organization>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- used for deployment to SonarSource Artifactory -->
