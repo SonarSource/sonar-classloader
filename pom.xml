@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>40</version>
+    <version>68.0.0.247</version>
   </parent>
   <groupId>org.sonarsource.sonar-classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
