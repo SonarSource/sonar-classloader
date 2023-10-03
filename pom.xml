@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>40</version>
+    <version>68.0.0.247</version>
   </parent>
   <groupId>org.sonarsource.sonar-classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
@@ -15,13 +15,13 @@
 
   <organization>
     <name>SonarSource</name>
-    <url>http://www.sonarsource.com</url>
+    <url>https://www.sonarsource.com</url>
   </organization>
 
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <url>https://www.gnu.org/licenses/lgpl.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -32,6 +32,7 @@
   </issueManagement>
 
   <properties>
+    <sonar.organization>sonarsource</sonar.organization>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- used for deployment to SonarSource Artifactory -->
