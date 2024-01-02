@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>68.0.0.247</version>
+    <version>70.0.0.270</version>
   </parent>
   <groupId>org.sonarsource.sonar-classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
@@ -105,7 +105,8 @@
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-gpg-plugin</artifactId>
+	    <artifactId>maven-gpg-plugin</artifactId>
+	    <version>3.1.0</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
