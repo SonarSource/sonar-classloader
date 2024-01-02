@@ -33,6 +33,7 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
 
   private final String key;
   private Mask mask = Mask.ALL;
+  private Mask exportMask = Mask.ALL;
   private ClassloaderRef parentRef = NullClassloaderRef.INSTANCE;
   private List<ClassloaderRef> siblingRefs = new ArrayList<>();
   private Strategy strategy;
@@ -48,6 +49,15 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
 
   ClassRealm setMask(Mask mask) {
     this.mask = mask;
+    return this;
+  }
+
+  Mask getExportMask() {
+    return exportMask;
+  }
+
+  ClassRealm setExportMask(Mask exportMask) {
+    this.exportMask = exportMask;
     return this;
   }
 
