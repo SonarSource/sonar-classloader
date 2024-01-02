@@ -368,8 +368,10 @@ public class ClassloaderBuilderTest {
   @Test
   public void fail_to_create_the_same_previous_classloader_twice() throws Exception {
     Map<String, ClassLoader> classloaders1 = sut.newClassloader("the-cl").build();
+    ClassloaderBuilder builder = new ClassloaderBuilder(classloaders1.values());
+
     try {
-      new ClassloaderBuilder(classloaders1.values()).newClassloader("the-cl");
+      builder.newClassloader("the-cl");
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessage("The classloader 'the-cl' already exists in the list of previously created classloaders. " +
@@ -644,7 +646,7 @@ public class ClassloaderBuilderTest {
 
     ClassLoader parent = classloaders1.get("the-parent");
     assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
-    assertThat(Collections.list(parent.getResources("b.txt"))).hasSize(0);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
 
     ClassLoader child = classloaders2.get("the-child");
     assertThat(Collections.list(child.getResources("a.txt"))).hasSize(1);
@@ -668,10 +670,10 @@ public class ClassloaderBuilderTest {
     ClassLoader parent = classloaders1.get("the-sib");
     assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
     assertThat(Collections.list(parent.getResources("A.java"))).hasSize(1);
-    assertThat(Collections.list(parent.getResources("b.txt"))).hasSize(0);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
 
     ClassLoader child = classloaders2.get("the-child");
-    assertThat(Collections.list(child.getResources("a.txt"))).hasSize(0);
+    assertThat(Collections.list(child.getResources("a.txt"))).isEmpty();
     assertThat(Collections.list(parent.getResources("A.java"))).hasSize(1);
     assertThat(Collections.list(child.getResources("b.txt"))).hasSize(1);
   }
@@ -691,7 +693,7 @@ public class ClassloaderBuilderTest {
 
     ClassLoader parent = classloaders1.get("the-sib");
     assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
-    assertThat(Collections.list(parent.getResources("b.txt"))).hasSize(0);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
 
     ClassLoader child = classloaders2.get("the-child");
     assertThat(Collections.list(child.getResources("a.txt"))).hasSize(1);
