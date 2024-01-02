@@ -23,14 +23,40 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.emptyList;
 
 /**
  * @since 0.1
  */
 public class ClassloaderBuilder {
+  private final Map<String, ClassRealm> previouslyCreatedClassLoaders;
+
+  public ClassloaderBuilder() {
+    this(emptyList());
+  }
+
+  /**
+   * Creates a new classloader builder that can use a collection of previously created
+   * classloaders as parent or siblings when building the new classloaders.
+   *
+   * @param previouslyCreatedClassLoaders Collection of classloaders that can be used as a
+   *                                      parent or sibling. Must be of type {@link ClassRealm}.
+   */
+  public ClassloaderBuilder(Collection<ClassLoader> previouslyCreatedClassLoaders) {
+    this.previouslyCreatedClassLoaders = new HashMap<>();
+    for (ClassLoader cl : previouslyCreatedClassLoaders) {
+      if (!(cl instanceof ClassRealm)) {
+        throw new IllegalArgumentException("classloader not of type ClassRealm: " + cl);
+      }
+      ClassRealm classRealm = (ClassRealm) cl;
+      this.previouslyCreatedClassLoaders.put(classRealm.getKey(), classRealm);
+    }
+  }
 
   public enum LoadingOrder {
     /**
@@ -56,8 +82,6 @@ public class ClassloaderBuilder {
    */
   private static class NewRealm {
     private final ClassRealm realm;
-
-    private Mask exportMask = Mask.ALL;
 
     // key of the optional parent classloader
     private String parentKey;
@@ -88,6 +112,10 @@ public class ClassloaderBuilder {
   public ClassloaderBuilder newClassloader(final String key, final ClassLoader baseClassloader) {
     if (newRealmsByKey.containsKey(key)) {
       throw new IllegalStateException(String.format("The classloader '%s' already exists. Can not create it twice.", key));
+    }
+    if (previouslyCreatedClassLoaders.containsKey(key)) {
+      throw new IllegalStateException(String.format("The classloader '%s' already exists in the list of previously created classloaders."
+        + " Can not create it twice.", key));
     }
     ClassRealm realm = AccessController.doPrivileged(new PrivilegedAction<ClassRealm>() {
       @Override
@@ -137,7 +165,7 @@ public class ClassloaderBuilder {
   }
 
   public ClassloaderBuilder setExportMask(String key, Mask mask) {
-    getOrFail(key).exportMask = mask;
+    getOrFail(key).realm.setExportMask(mask);
     return this;
   }
 
@@ -158,16 +186,16 @@ public class ClassloaderBuilder {
     for (Map.Entry<String, NewRealm> entry : newRealmsByKey.entrySet()) {
       NewRealm newRealm = entry.getValue();
       if (newRealm.parentKey != null) {
-        NewRealm parent = getOrFail(newRealm.parentKey);
+        ClassRealm parent = getNewOrPreviousClassloader(newRealm.parentKey);
         Mask parentMask = newRealm.associatedMasks.get(newRealm.parentKey);
         parentMask = mergeWithExportMask(parentMask, newRealm.parentKey);
-        newRealm.realm.setParent(new DefaultClassloaderRef(parent.realm, parentMask));
+        newRealm.realm.setParent(new DefaultClassloaderRef(parent, parentMask));
       }
       for (String siblingKey : newRealm.siblingKeys) {
-        NewRealm sibling = getOrFail(siblingKey);
+        ClassRealm sibling = getNewOrPreviousClassloader(siblingKey);
         Mask siblingMask = newRealm.associatedMasks.get(siblingKey);
         siblingMask = mergeWithExportMask(siblingMask, siblingKey);
-        newRealm.realm.addSibling(new DefaultClassloaderRef(sibling.realm, siblingMask));
+        newRealm.realm.addSibling(new DefaultClassloaderRef(sibling, siblingMask));
       }
       result.put(newRealm.realm.getKey(), newRealm.realm);
     }
@@ -177,7 +205,11 @@ public class ClassloaderBuilder {
   private Mask mergeWithExportMask(Mask mask, String exportKey) {
     NewRealm newRealm = newRealmsByKey.get(exportKey);
     if (newRealm != null) {
-      return Mask.builder().copy(mask).merge(newRealm.exportMask).build();
+      return Mask.builder().copy(mask).merge(newRealm.realm.getExportMask()).build();
+    }
+    ClassRealm realm = previouslyCreatedClassLoaders.get(exportKey);
+    if (realm != null) {
+      return Mask.builder().copy(mask).merge(realm.getExportMask()).build();
     }
     return mask;
   }
@@ -188,6 +220,19 @@ public class ClassloaderBuilder {
       throw new IllegalStateException(String.format("The classloader '%s' does not exist", key));
     }
     return newRealm;
+  }
+
+  private ClassRealm getNewOrPreviousClassloader(String key) {
+    NewRealm newRealm = newRealmsByKey.get(key);
+    if (newRealm != null) {
+      return newRealm.realm;
+    }
+    ClassRealm previousClassloader = previouslyCreatedClassLoaders.get(key);
+    if (previousClassloader != null) {
+      return previousClassloader;
+    }
+
+    throw new IllegalStateException(String.format("The classloader '%s' does not exist", key));
   }
 
   /**
