@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +49,29 @@ public class ClassloaderBuilderTest {
     assertThat(canLoadClass(classloader, Test.class.getName())).isFalse();
     assertThat(canLoadClass(classloader, "A")).isFalse();
     assertThat(canLoadResource(classloader, "a.txt")).isFalse();
+  }
+
+  @Test
+  public void previous_classloader_not_returned_again() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut.newClassloader("example1").build();
+    Map<String, ClassLoader> classloaders2 = new ClassloaderBuilder(classloaders1.values())
+      .newClassloader("example2").build();
+
+    assertThat(classloaders2).containsOnlyKeys("example2");
+  }
+
+  @Test
+  public void fail_if_setting_attribute_to_previously_loaded_classloader() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut.newClassloader("example1").build();
+    ClassloaderBuilder builder = new ClassloaderBuilder(classloaders1.values())
+      .newClassloader("example2");
+
+    try {
+      builder.setMask("example1", Mask.ALL);
+      fail();
+    } catch (IllegalStateException e) {
+      // ok
+    }
   }
 
   /**
@@ -137,7 +159,7 @@ public class ClassloaderBuilderTest {
   }
 
   /**
-   * Parent classloader can be created outside {@link org.sonar.classloader.ClassloaderBuilder}.
+   * Parent classloader can be created outside {@link ClassloaderBuilder}.
    * Default ordering strategy is parent-first.
    */
   @Test
@@ -344,6 +366,20 @@ public class ClassloaderBuilderTest {
   }
 
   @Test
+  public void fail_to_create_the_same_previous_classloader_twice() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut.newClassloader("the-cl").build();
+    ClassloaderBuilder builder = new ClassloaderBuilder(classloaders1.values());
+
+    try {
+      builder.newClassloader("the-cl");
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("The classloader 'the-cl' already exists in the list of previously created classloaders. " +
+        "Can not create it twice.");
+    }
+  }
+
+  @Test
   public void fail_if_missing_declaration() throws Exception {
     sut.newClassloader("the-cl");
     sut.setParent("the-cl", "missing", Mask.ALL);
@@ -399,7 +435,7 @@ public class ClassloaderBuilderTest {
   }
 
   /**
-   * Sibling classloader can be created outside {@link org.sonar.classloader.ClassloaderBuilder}.
+   * Sibling classloader can be created outside {@link ClassloaderBuilder}.
    */
   @Test
   public void existing_sibling() throws Exception {
@@ -592,6 +628,76 @@ public class ClassloaderBuilderTest {
     assertThat(Collections.list(child.getResources("a.txt"))).hasSize(1);
     assertThat(Collections.list(child.getResources("b.txt"))).hasSize(1);
     assertThat(Collections.list(child.getResources("c.txt"))).hasSize(1);
+  }
+
+  @Test
+  public void getResources_from_previously_loaded_parent() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut
+      .newClassloader("the-parent")
+      .addURL("the-parent", new File("tester/a.jar").toURL())
+      .build();
+
+
+    Map<String, ClassLoader> classloaders2 = new ClassloaderBuilder(classloaders1.values())
+      .newClassloader("the-child")
+      .addURL("the-child", new File("tester/b.jar").toURL())
+      .setParent("the-child", "the-parent", Mask.ALL)
+      .build();
+
+    ClassLoader parent = classloaders1.get("the-parent");
+    assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
+
+    ClassLoader child = classloaders2.get("the-child");
+    assertThat(Collections.list(child.getResources("a.txt"))).hasSize(1);
+    assertThat(Collections.list(child.getResources("b.txt"))).hasSize(1);
+  }
+
+  @Test
+  public void getResources_from_previously_loaded_sibling_based_on_export_mask() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut
+      .newClassloader("the-sib")
+      .addURL("the-sib", new File("tester/a.jar").toURL())
+      .setExportMask("the-sib", Mask.builder().include("A.java").build())
+      .build();
+
+    Map<String, ClassLoader> classloaders2 = new ClassloaderBuilder(classloaders1.values())
+      .newClassloader("the-child")
+      .addURL("the-child", new File("tester/b.jar").toURL())
+      .addSibling("the-child", "the-sib", Mask.ALL)
+      .build();
+
+    ClassLoader parent = classloaders1.get("the-sib");
+    assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
+    assertThat(Collections.list(parent.getResources("A.java"))).hasSize(1);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
+
+    ClassLoader child = classloaders2.get("the-child");
+    assertThat(Collections.list(child.getResources("a.txt"))).isEmpty();
+    assertThat(Collections.list(parent.getResources("A.java"))).hasSize(1);
+    assertThat(Collections.list(child.getResources("b.txt"))).hasSize(1);
+  }
+
+  @Test
+  public void getResources_from_previously_loaded_sibling() throws Exception {
+    Map<String, ClassLoader> classloaders1 = sut
+      .newClassloader("the-sib")
+      .addURL("the-sib", new File("tester/a.jar").toURL())
+      .build();
+
+    Map<String, ClassLoader> classloaders2 = new ClassloaderBuilder(classloaders1.values())
+      .newClassloader("the-child")
+      .addURL("the-child", new File("tester/b.jar").toURL())
+      .addSibling("the-child", "the-sib", Mask.ALL)
+      .build();
+
+    ClassLoader parent = classloaders1.get("the-sib");
+    assertThat(Collections.list(parent.getResources("a.txt"))).hasSize(1);
+    assertThat(Collections.list(parent.getResources("b.txt"))).isEmpty();
+
+    ClassLoader child = classloaders2.get("the-child");
+    assertThat(Collections.list(child.getResources("a.txt"))).hasSize(1);
+    assertThat(Collections.list(child.getResources("b.txt"))).hasSize(1);
   }
 
   @Test
