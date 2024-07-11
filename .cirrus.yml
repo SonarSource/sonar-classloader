@@ -1,14 +1,12 @@
 env:
   CIRRUS_CLONE_DEPTH: "20"
-  ARTIFACTORY_API_KEY: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
+  # Use bash (instead of sh on linux or cmd.exe on Windows)
+  CIRRUS_SHELL: bash
+
   ARTIFACTORY_URL: VAULT[development/kv/data/repox data.url]
-  # Possible values for ARTIFACTORY_DEPLOY_REPO: sonarsource-private-qa, sonarsource-public-qa
   ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
   ARTIFACTORY_PRIVATE_USERNAME: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader username]
   ARTIFACTORY_PRIVATE_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-private-reader access_token]
-  # access license key
-  # Use bash (instead of sh on linux or cmd.exe on Windows)
-  CIRRUS_SHELL: bash
 
 eks_container: &CONTAINER_DEFINITION
   image: ${CIRRUS_AWS_ACCOUNT}.dkr.ecr.eu-central-1.amazonaws.com/base:j17-latest
@@ -20,7 +18,7 @@ only_sonarsource_qa: &ONLY_SONARSOURCE_QA
   only_if: >
     $CIRRUS_USER_COLLABORATOR == 'true' &&
     $CIRRUS_TAG == "" &&
-    ($CIRRUS_PR != "" || $CIRRUS_BRANCH == "master" || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
+    ($CIRRUS_PR != "" || $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_BRANCH =~ "branch-.*" || $CIRRUS_BRANCH =~ "dogfood-on-.*")
 
 build_task:
   <<: *ONLY_SONARSOURCE_QA
@@ -29,7 +27,6 @@ build_task:
     cpu: 2
     memory: 2G
   env:
-    ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
     ARTIFACTORY_DEPLOY_USERNAME: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer username]
     ARTIFACTORY_DEPLOY_PASSWORD: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-qa-deployer access_token]
     # allow deployment of pull request artifacts to repox
@@ -48,7 +45,6 @@ build_task:
   build_script:
     - source cirrus-env BUILD-PUBLIC
     - regular_mvn_build_deploy_analyze
-  cleanup_before_cache_script: cleanup_maven_repository
 
 promote_task:
   depends_on:
@@ -59,17 +55,8 @@ promote_task:
     cpu: 1
     memory: 1G
   env:
-    GITHUB_TOKEN: VAULT[development/github/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promotion token]
-    # promotion cloud function
-    GCF_ACCESS_TOKEN: VAULT[development/kv/data/promote data.token]
-    PROMOTE_URL: VAULT[development/kv/data/promote data.url]
-    # artifacts that will have downloadable links in burgr
-    ARTIFACTS: org.sonarsource.sonar-classloader:sonar-classloader:jar
-    BURGR_URL: VAULT[development/kv/data/burgr data.url]
-    BURGR_USERNAME: VAULT[development/kv/data/burgr data.cirrus_username]
-    BURGR_PASSWORD: VAULT[development/kv/data/burgr data.cirrus_password]
+    ARTIFACTORY_PROMOTE_ACCESS_TOKEN: VAULT[development/artifactory/token/${CIRRUS_REPO_OWNER}-${CIRRUS_REPO_NAME}-promoter access_token]
   maven_cache:
     folder: ${CIRRUS_WORKING_DIR}/.m2/repository
   script:
     - cirrus_promote_maven
-  cleanup_before_cache_script: cleanup_maven_repository
