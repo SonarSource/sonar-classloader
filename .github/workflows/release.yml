@@ -6,17 +6,13 @@ on:
   release:
     types:
       - published
-  workflow_dispatch:
-
-env:
-  PYTHONUNBUFFERED: 1
 
 jobs:
   release:
     permissions:
       id-token: write
       contents: write
-    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@8c85ff24955eda4c81938fd8c45943ccc8974c68 # 5.0.14
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v5
     with:
       publishToBinaries: true
       mavenCentralSync: true
