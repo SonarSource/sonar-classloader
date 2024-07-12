@@ -1,5 +1,5 @@
 /*
- * sonar-classloader
+ * Sonar Classloader
  * Copyright (C) 2015-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *

@@ -7,7 +7,7 @@ This library is available under GNU LGPLv3.
 ## Maven Dependency
 
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.classloader</groupId>
       <artifactId>sonar-classloader</artifactId>
       <version>1.1</version>
     </dependency>

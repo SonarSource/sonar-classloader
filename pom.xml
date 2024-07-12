@@ -6,10 +6,10 @@
     <artifactId>parent</artifactId>
     <version>74.0.0.1768</version>
   </parent>
-  <groupId>org.sonarsource.sonar-classloader</groupId>
+  <groupId>org.sonarsource.classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
   <version>1.1-SNAPSHOT</version>
-  <name>sonar-classloader</name>
+  <name>Sonar Classloader</name>
   <description>Java classloader toolbox</description>
   <inceptionYear>2015</inceptionYear>
 
@@ -25,11 +25,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <issueManagement>
-    <system>github</system>
-    <url>https://github.com/SonarSource/sonar-classloader/issues</url>
-  </issueManagement>
 
   <properties>
     <sonar.organization>sonarsource</sonar.organization>
