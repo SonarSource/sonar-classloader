@@ -9,7 +9,7 @@
   </parent>
   <groupId>org.sonarsource.classloader</groupId>
   <artifactId>sonar-classloader</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.3-SNAPSHOT</version>
   <name>Sonar Classloader</name>
   <description>Java classloader toolbox</description>
   <inceptionYear>2015</inceptionYear>
