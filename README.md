@@ -11,7 +11,7 @@ This library is available under GNU LGPLv3.
     <dependency>
       <groupId>org.sonarsource.classloader</groupId>
       <artifactId>sonar-classloader</artifactId>
-      <version>1.1</version>
+      <version>1.2</version>
     </dependency>
 
 ## Usage
