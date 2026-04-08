@@ -1,6 +1,6 @@
 /*
  * Sonar Classloader
- * Copyright (C) 2015-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,10 +19,9 @@
  */
 package org.sonar.classloader;
 
-import javax.annotation.CheckForNull;
-
 import java.net.URL;
 import java.util.Collection;
+import javax.annotation.CheckForNull;
 
 interface StrategyContext {
 
