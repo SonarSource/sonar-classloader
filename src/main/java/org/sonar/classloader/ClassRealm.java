@@ -1,6 +1,6 @@
 /*
  * Sonar Classloader
- * Copyright (C) 2015-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,7 +19,6 @@
  */
 package org.sonar.classloader;
 
-import javax.annotation.CheckForNull;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,6 +27,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 class ClassRealm extends URLClassLoader implements StrategyContext {
 
