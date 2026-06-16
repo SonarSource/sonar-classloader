@@ -16,4 +16,4 @@ jobs:
     with:
       publishToBinaries: false
       mavenCentralSync: true
-      slackChannel: build
+      slackChannel: ops-ci-experience
