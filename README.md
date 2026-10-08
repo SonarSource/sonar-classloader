@@ -11,7 +11,7 @@
 
 # Toolbox for Java classloaders
 
-Sonar Classloader is a Java library for building and configuring classloaders. It is independent of SonarQube and can be used without third-party dependencies; continue to the Maven dependency and usage examples below.
+Sonar Classloader is a Java library for building and configuring classloaders.
 
 To learn more about the SonarQube product family, visit the [Sonar website](https://www.sonarsource.com/products/sonarqube/).
 
