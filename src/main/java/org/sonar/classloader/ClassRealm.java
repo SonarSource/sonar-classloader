@@ -35,7 +35,7 @@ class ClassRealm extends URLClassLoader implements StrategyContext {
   private Mask mask = Mask.ALL;
   private Mask exportMask = Mask.ALL;
   private ClassloaderRef parentRef = NullClassloaderRef.INSTANCE;
-  private List<ClassloaderRef> siblingRefs = new ArrayList<>();
+  private final List<ClassloaderRef> siblingRefs = new ArrayList<>();
   private Strategy strategy;
 
   ClassRealm(String key, ClassLoader baseClassloader) {
